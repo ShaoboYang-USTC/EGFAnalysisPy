@@ -1,0 +1,16 @@
+2022-10-17 22:47:07,328 - DEBUG - Longitude_A: 117.43331, Latitude_A: 31.810695, Altitude_A: 12.939
+2022-10-17 22:47:07,328 - DEBUG - Longitude_B: 117.48089, Latitude_B: 31.663457, Altitude_B: 28.166
+2022-10-17 22:47:07,328 - DEBUG - circleDist: 16.97919280439219, staElevDiff: 0.015227000000000001
+2022-10-17 22:47:07,328 - INFO - Station distance: 16.979199632204477 km
+2022-10-17 22:47:07,329 - WARNING - Noise window length of 3220, not long enough
+2022-10-17 22:47:07,329 - DEBUG - guassalfa: 5.509375988966134
+2022-10-17 22:47:07,559 - DEBUG - guassalfa: 5.509375988966134
+2022-10-17 22:47:07,876 - WARNING - No GroupDisperCurve for time-variable filtering analysis
+2022-10-17 22:47:13,257 - DEBUG - Longitude_A: 117.43331, Latitude_A: 31.810695, Altitude_A: 12.939
+2022-10-17 22:47:13,257 - DEBUG - Longitude_B: 117.62963, Latitude_B: 31.777516, Altitude_B: 53.719
+2022-10-17 22:47:13,257 - DEBUG - circleDist: 18.917425251374205, staElevDiff: 0.040780000000000004
+2022-10-17 22:47:13,257 - INFO - Station distance: 18.91746920572967 km
+2022-10-17 22:47:13,259 - WARNING - Noise window length of 3017, not long enough
+2022-10-17 22:47:13,259 - DEBUG - guassalfa: 5.56752407617189
+2022-10-17 22:47:13,450 - DEBUG - guassalfa: 5.56752407617189
+2022-10-17 22:47:13,659 - WARNING - No GroupDisperCurve for time-variable filtering analysis

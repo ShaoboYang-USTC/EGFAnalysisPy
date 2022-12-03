@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/yang/Projects/DisperPicker_202209/1_training/BatchNormEma2/saver/-10000"
+all_model_checkpoint_paths: "/home/yang/Projects/DisperPicker_202209/1_training/BatchNormEma2/saver/-10000"
