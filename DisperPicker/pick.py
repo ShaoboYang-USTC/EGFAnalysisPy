@@ -88,12 +88,10 @@ class Pick(object):
         self.test_data_path = self.config.test_data_path
 
         # Check result path
-        if not os.path.exists('{}/pick_result'):
-            os.system('mkdir -p {}/pick_result'.format(self.result_path))
-        if not os.path.exists('{}/plot'):
-            os.system('mkdir -p {}/plot'.format(self.result_path))
-        # os.system('rm {}/pick_result/*'.format(self.result_path))
-        # os.system('rm {}/plot/*'.format(self.result_path))
+        if not os.path.exists('{}/pick_result'.format(self.result_path)):
+            os.makedirs('{}/pick_result'.format(self.result_path))
+        if not os.path.exists('{}/plot'.format(self.result_path)):
+            os.makedirs('{}/plot'.format(self.result_path))
 
         # Picking thresholds
         self.ref_T = None

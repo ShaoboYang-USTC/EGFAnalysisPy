@@ -45,7 +45,8 @@ for index in range(file_num):
     file_path = os.path.join(config.waveform_path, file_list[index])
     file_name = os.path.splitext(file_list[index])[0]
     # 1. No time variable filtering
-    gfcn = EGFAnalysisTimeFreq.gfcn_analysis(DataFileName=file_path, StartT=config.StartT, EndT=config.EndT,  
+    gfcn = EGFAnalysisTimeFreq.gfcn_analysis(DataFileName=file_path,isEGF=config.isEGF, 
+                                             StartT=config.StartT, EndT=config.EndT,  
                                              DeltaT=config.DeltaT, StartV=config.StartV, 
                                              EndV=config.EndV, DeltaV=config.DeltaV, 
                                              GreenFcnObjects=config.GreenFcnObjects, 
@@ -59,7 +60,9 @@ for index in range(file_num):
         batch_group_image[0, config.input_size[0]-group_image.shape[0]:, :group_image.shape[1]] = group_image
     snr = gfcn.SNR_T
     SNRIndex = gfcn.SNRIndex
-    phase_image = gfcn.PhaseVelocityImgCalculate(TimeVariableFilter=gfcn.TimeVariableFilterType.no)
+    phase_image = gfcn.PhaseVelocityImgCalculate(TimeVariableFilter=gfcn.TimeVariableFilterType.no,
+                                                 WinPeriodNum=config.WinPeriodNum, WinMinTime=config.WinMinTime,
+                                                 FilterKaiserPara = config.FilterKaiserPara, MaxFilterLengthLog = config.MaxFilterLengthLog)
     phase_image = phase_image[:config.input_size[0], :config.input_size[1]]
     if True not in np.isnan(phase_image):
         batch_phase_image[0, config.input_size[0]-phase_image.shape[0]:, :group_image.shape[1]] = phase_image
@@ -77,7 +80,9 @@ for index in range(file_num):
     if np.count_nonzero(group_velocity[0]) > 0:
         # gfcn.GroupVelocityImgCalculate()
         gfcn.GroupDisperCurve = group_velocity[0]
-        phase_image = gfcn.PhaseVelocityImgCalculate(TimeVariableFilter=gfcn.TimeVariableFilterType.obs)
+        phase_image = gfcn.PhaseVelocityImgCalculate(TimeVariableFilter=gfcn.TimeVariableFilterType.obs,
+                                                     WinPeriodNum=config.WinPeriodNum, WinMinTime=config.WinMinTime,
+                                                     FilterKaiserPara=config.FilterKaiserPara, MaxFilterLengthLog=config.MaxFilterLengthLog)
         phase_image = phase_image[:config.input_size[0], :config.input_size[1]]
         if True not in np.isnan(phase_image):
             batch_phase_image[0, config.input_size[0]-phase_image.shape[0]:, :group_image.shape[1]] = phase_image
@@ -102,8 +107,12 @@ for index in range(file_num):
     all_C.append(phase_velocity)
     format_G = np.array([T, group_velocity, snr, prob_G]).T
     format_C = np.array([T, phase_velocity, snr, prob_C]).T
+    if not os.path.exists(f'{config.result_path}/qc_plot'):
+        os.makedirs(f'{config.result_path}/qc_plot')
     fig_name = '{}/qc_plot/{}'.format(config.result_path, file_name)
     plot_test(batch_group_image[0], group_velocity, batch_phase_image[0], phase_velocity, fig_name)
+    if not os.path.exists(f'{config.result_path}/qc_result'):
+        os.makedirs(f'{config.result_path}/qc_result')
     disp_name = '{}/qc_result/GDisp.{}.txt'.format(config.result_path, file_name)
     with open(disp_name, 'w') as f:
         f.write(f'{sta_info[1]:.8f}    {sta_info[2]:.8f}\n')

@@ -214,7 +214,7 @@ class gfcn_analysis:
         GroupVelocityImg = GroupVelocityImg[::-1]
 
         self.GroupVelocityImg = GroupVelocityImg
-        return GroupVelocityImg
+        return GroupVelocityImg.copy()
 
     def GroupVelocityImgPlot(self):
         # packaged data
@@ -374,41 +374,45 @@ class gfcn_analysis:
             else:
                 IsDispGood = False
         self.GroupDisperCurve = GroupVDisp[0]
-        return IsDispGood, self.GroupDisperCurve
+        return IsDispGood, self.GroupDisperCurve.copy()
 
     class TimeVariableFilterType(Enum):
+        # using fixed wave window
         no = 1,
+        # using frequency-time variable MFT to window the original waveform
         obs = 2
 
     def PhaseVelocityImgCalculate(self,
                          TimeVariableFilter=TimeVariableFilterType.no,
-                         WindnumT=5,
-                         Winmintime=25,
+                         WinPeriodNum=5,
+                         WinMinTime=25,
+                         FilterKaiserPara = 6,
+                         MaxFilterLengthLog = 13,
                          ):
         '''
         calculate phase velocity dispersion curve
         args:
-            BandWidth: 
-            WindnumT : number of window period
-            Winmintime : minimum of window time
+            TimeVariableFilter : select the method for time-variable filtering analysis, see TimeVariableFilterType
+            WinPeriodNum : number of window period
+            WinMinTime : minimum of window time
+            FilterKaiserPara : shape factor of Kaiser window
+            MaxFilterLengthLog : base 2 logarithm of maximum value of fft point when using freq. domain, too high value will cause slow calculation
         return:
-        '''       
+        '''
         BandWidth = self.DeltaT
-        filter_num = int(2 ** math.ceil(np.log2(1024*self.SampleF)))
-
-        #TODO:How to determine this value
-        if(filter_num > 8192):
-            filter_num=8192
-
-        filter_KaiserPara = 6
-        HalfFilterNum = int(filter_num / 2)
+        
+        exponential = min(math.ceil(np.log2(1024*self.SampleF)),MaxFilterLengthLog)
+        filter_length = int(2 ** exponential)
+        
+        HalfFilterNum = int(filter_length / 2)
         WinWave = np.concatenate((np.copy(self.WinWaveClip), np.zeros(HalfFilterNum)))
 
         # No GroupVDisp for time-variable filtering analysis
-        if not hasattr(self, 'GroupDisperCurve'):
-            TimeVariableFilter = self.TimeVariableFilterType.no
-            logger.warning(
-                'No GroupDisperCurve for time-variable filtering analysis')
+        if TimeVariableFilter == self.TimeVariableFilterType.obs:
+            if not hasattr(self, 'GroupDisperCurve'):
+                TimeVariableFilter = self.TimeVariableFilterType.no
+                logger.warning(
+                    'No GroupDisperCurve for time-variable filtering analysis')
 
         if TimeVariableFilter == self.TimeVariableFilterType.obs:
             GroupTime = self.StaDist/self.GroupDisperCurve
@@ -416,8 +420,8 @@ class gfcn_analysis:
             III = np.where(GroupTime == np.inf)
             GroupTime[III] = self.StaDist/self.StartV
 
-            GroupVwinMin = self.StaDist/(GroupTime + np.maximum(WindnumT/2*self.TPoint,Winmintime))
-            GroupVwinMax = self.StaDist/(GroupTime - np.maximum(WindnumT/2*self.TPoint, Winmintime))
+            GroupVwinMin = self.StaDist/(GroupTime + np.maximum(WinPeriodNum/2*self.TPoint,WinMinTime))
+            GroupVwinMax = self.StaDist/(GroupTime - np.maximum(WinPeriodNum/2*self.TPoint, WinMinTime))
             III = np.where(GroupVwinMax <= 0)
             GroupVwinMax[III] = self.EndWin *2
 
@@ -437,9 +441,9 @@ class gfcn_analysis:
             CtrF = (2 / self.SampleF) / CtrT
             LowF = (2 / self.SampleF) / (CtrT + 0.5 * BandWidth)
             HighF = (2 / self.SampleF) / (CtrT - 0.5 * BandWidth)
-            filter_data = signal.firwin(filter_num + 1, [LowF, HighF], pass_zero=False,window=('kaiser', filter_KaiserPara))
+            filter_data = signal.firwin(filter_length + 1, [LowF, HighF], pass_zero=False,window=('kaiser', FilterKaiserPara))
             if TimeVariableFilter == self.TimeVariableFilterType.obs:
-                winpt = np.round(np.maximum(WindnumT * CtrT,Winmintime)*self.SampleF)
+                winpt = np.round(np.maximum(WinPeriodNum * CtrT,WinMinTime)*self.SampleF)
                 # to ensure winpt is even number
                 if winpt % 2 == 1:
                     winpt = winpt + 1
@@ -487,7 +491,7 @@ class gfcn_analysis:
         PhaseVelocityImg = PhaseVelocityImg[::-1]
 
         self.PhaseVelocityImg = PhaseVelocityImg
-        return PhaseVelocityImg
+        return PhaseVelocityImg.copy()
 
     def PhaseVelocityImgPlot(self):
         # packaged data
@@ -640,7 +644,7 @@ class gfcn_analysis:
                 else:
                     IsDispGood = False
         self.PhaseDisperCurve = PhaseVDisp[0]
-        return IsDispGood, self.PhaseDisperCurve
+        return IsDispGood, self.PhaseDisperCurve.copy()
 
     def SaveGroupDisper(self, save_path=r'./Disper'):
         '''
@@ -660,7 +664,6 @@ class gfcn_analysis:
             f.write(f'{self.Longitude_B}    {self.Latitude_B}\n')
             for i in range(self.NumCtrT):
                 wavelength = self.GroupDisperCurve[i] * self.TPoint[i]
-                # TODO:第三列信噪比
                 if self.StaDist >= self.minlamdaRatio * wavelength:
                     f.write(f'{self.TPoint[i]:.1f}    {self.GroupDisperCurve[i]:.3f}    {0:.3f}    {1:d}\n')
                 else:
@@ -840,7 +843,7 @@ class gfcn_analysis:
                 logger.error(
                     'group velocity reference should have 2 or 3 columns')
         except:
-            logger.error(f'Fail to load data from {FilePath}')
+            logger.error(f'Fail to load data from {path}')
             raise
         self.refgroupdisp = refgdisp
 
@@ -860,31 +863,6 @@ class gfcn_analysis:
             else:
                 logger.error('phase velocity reference should have 2 or 3 columns')
         except:
-            logger.error(f'Fail to load data from {FilePath}')
+            logger.error(f'Fail to load data from {path}')
             raise
         self.refphasedisp = refgdisp
-
-if __name__ == '__main__':
-    # FilePath = "CF.dat"
-    # gfcn = gfcn_analysis(FilePath, isEGF=False, DeltaV=0.005, DeltaT=1)
-    
-    # FilePath = "ZZ_0101-2901_82d.dat"
-    FilePath = "ZZ_0101-2917_81d.dat"
-    gfcn = gfcn_analysis(FilePath, isEGF=False,StartV=1,EndV=4,StartT=0.6,EndT=10,DeltaT=0.1, DeltaV=0.02)
-
-    # FilePath = "FD01_FD16.dat"
-    # gfcn = gfcn_analysis(FilePath, isEGF=False,StartV=0.5,EndV=4,StartT=0.2,EndT=5,DeltaT=0.1, DeltaV=0.005)
-
-    gfcn.LoadRefGroupDisper('ref_RayGroupVdisp.txt')
-    gfcn.LoadRefPhaseDisper('ref_RayPhaseVdisp.txt')
-
-    gfcn.GroupVelocityImgCalculate()
-    gfcn.AutoGroupDisperPick()
-    gfcn.SaveGroupDisper()
-
-    gfcn.PhaseVelocityImgCalculate(TimeVariableFilter=gfcn.TimeVariableFilterType.obs)
-    gfcn.AutoPhaseDisperPick()
-    gfcn.SavePhaseDisper()
-
-    gfcn.GroupVelocityImgPlot()
-    gfcn.PhaseVelocityImgPlot()
