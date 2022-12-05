@@ -13,6 +13,12 @@
 
 * 修改`config.py`中的参数，其中包括`EGFAnalysisTimeFreq`的参数以及`DisperPicker`的参数，参数说明详见`config.py`
 
+* 运行程序例子可使`config_test.py`中的参数：
+
+  ```bash
+  cp config_test.py config.py
+  ```
+
 * 运行: `python run.py` 
 
 * 主要流程及代码：
@@ -65,10 +71,10 @@
 
 * 修改`config.py`中相应的参数，以部分长宁数据迁移学习为例，将数据分为训练集（`DisperPicker/data/TrainingData`）与验证集（`DisperPicker/data/ValidationData`），将频散能量图（`dv = 0.005 km/s`）与频散曲线放入相应文件夹下
 
-* 训练参数可使用config_train.py：
+* 训练参数可使用`config_train.py`：
 
   ```bash	
-  cp cofig_train.py config.py
+  cp config_train.py config.py
   ```
 
 * 开始迁移学习：

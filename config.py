@@ -78,17 +78,17 @@ class Config(object):
 
     def __init__(self):
         # =========    EGFAnalysisTimeFreq config    ========= #
-        
+
         self.root = os.getcwd()
         # self.root = '/home/yang/Projects/EGFAnalysisTimeFreq_py/Feidong_test'
         self.waveform_path = self.root + '/FeidongCFs'
         # self.waveform_path = self.root + '/AllCFs'
         self.result_path = self.root + '/DisperPicker/result'
         self.isEGF = False
-        self.StartV = 1
+        self.StartV = 0.5
         self.EndV = 4
-        self.StartT = 0.1
-        self.EndT = 6
+        self.StartT = 0.2
+        self.EndT = 5
         self.DeltaT = 0.1
         self.DeltaV = 0.005
         self.GreenFcnObjects = GreenFcnObjectsType.A_add_B
@@ -101,6 +101,7 @@ class Config(object):
         self.MaxFilterLengthLog = 14
 
         # ============    DisperPicker config    ============ #
+        
         self.dT = self.DeltaT
         self.dV = self.DeltaV
         self.range_T = [self.StartT, self.EndT, 
@@ -108,9 +109,9 @@ class Config(object):
         self.range_V = [self.StartV, self.EndV, 
                         round((self.EndV - self.StartV)/self.dV) + 1]    # [start, end, num]
         self.input_size = [self.range_V[2], self.range_T[2], 2]
-
-        # Picking thresholds (need fine-tuning)
         self.batch_size = 1
+        
+        # Picking thresholds (need fine-tuning)
         self.confidence_G = 0.6 
         self.mean_confidence_C = 0.4 
         self.confidence_C = 0 
@@ -126,9 +127,8 @@ class Config(object):
         self.validation_data_path = self.root + '/DisperPicker/data/ValidationData' 
 
         # Training config
-        self.train = True
+        self.train = False
         self.training_step = 1000
         self.learning_rate = 1e-3
         self.damping = 0.0
         self.radius = 20
-        # ============    DisperPicker config    ============ #

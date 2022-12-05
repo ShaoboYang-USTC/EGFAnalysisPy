@@ -16,6 +16,10 @@ class Config(object):
                              (e.g., A_to_B, B_to_A, A_add_B).
         WinAlpha: the proportion of cosine part to the whole window. 
         NoiseTime: the time of noise sampling
+        WinPeriodNum : number of window period
+        WinMinTime : minimum of window time
+        FilterKaiserPara : shape factor of Kaiser window
+        MaxFilterLengthLog : base 2 logarithm of maximum value of fft point when using freq. domain, too high value will cause slow calculation
     Path:
         root: The path of EGFAnalysisTimeFreq.
         waveform_path： CF/EGF file path.
@@ -54,7 +58,7 @@ class Config(object):
             This para can be set to 'None' to use the default value.
         ref_T2 ([int, int]): Use these columns to calculate the average probability of C curves.   
             This para can be set to [] to use the default value.
-        train (bool): is training or not. This may change the network para.
+        train (bool): train DisperPicker or not.
         training_step (int): Training step.
         learning_rate (float): Learning rate.
         damping (float): Avoid over-fitting.
@@ -74,7 +78,7 @@ class Config(object):
 
     def __init__(self):
         # =========    EGFAnalysisTimeFreq config    ========= #
-        
+
         self.root = os.getcwd()
         # self.root = '/home/yang/Projects/EGFAnalysisTimeFreq_py/Feidong_test'
         self.waveform_path = self.root + '/FeidongCFs'
@@ -91,8 +95,13 @@ class Config(object):
         self.WinAlpha = 0.1
         self.NoiseTime = 150
         self.MinSNR = 5.0
+        self.WinPeriodNum = 5
+        self.WinMinTime = 25
+        self.FilterKaiserPara = 6
+        self.MaxFilterLengthLog = 14
 
         # ============    DisperPicker config    ============ #
+        
         self.dT = self.DeltaT
         self.dV = self.DeltaV
         self.range_T = [self.StartT, self.EndT, 
@@ -100,9 +109,9 @@ class Config(object):
         self.range_V = [self.StartV, self.EndV, 
                         round((self.EndV - self.StartV)/self.dV) + 1]    # [start, end, num]
         self.input_size = [self.range_V[2], self.range_T[2], 2]
-
-        # Picking thresholds (need fine-tuning)
         self.batch_size = 1
+        
+        # Picking thresholds (need fine-tuning)
         self.confidence_G = 0.6 
         self.mean_confidence_C = 0.4 
         self.confidence_C = 0 
@@ -123,4 +132,3 @@ class Config(object):
         self.learning_rate = 1e-3
         self.damping = 0.0
         self.radius = 20
-        # ============    DisperPicker config    ============ #
