@@ -16,6 +16,10 @@ class Config(object):
                              (e.g., A_to_B, B_to_A, A_add_B).
         WinAlpha: the proportion of cosine part to the whole window. 
         NoiseTime: the time of noise sampling
+        WinPeriodNum : number of window period
+        WinMinTime : minimum of window time
+        FilterKaiserPara : shape factor of Kaiser window
+        MaxFilterLengthLog : base 2 logarithm of maximum value of fft point when using freq. domain, too high value will cause slow calculation
     Path:
         root: The path of EGFAnalysisTimeFreq.
         waveform_path： CF/EGF file path.
@@ -91,6 +95,10 @@ class Config(object):
         self.WinAlpha = 0.1
         self.NoiseTime = 150
         self.MinSNR = 5.0
+        self.WinPeriodNum = 5
+        self.WinMinTime = 25
+        self.FilterKaiserPara = 6
+        self.MaxFilterLengthLog = 14
 
         # ============    DisperPicker config    ============ #
         self.dT = self.DeltaT
@@ -102,7 +110,7 @@ class Config(object):
         self.input_size = [self.range_V[2], self.range_T[2], 2]
 
         # Picking thresholds (need fine-tuning)
-        self.batch_size = 16
+        self.batch_size = 1
         self.confidence_G = 0.6 
         self.mean_confidence_C = 0.4 
         self.confidence_C = 0 
