@@ -202,13 +202,13 @@ class gfcn_analysis:
                     self.SNRIndex[ii] = 1
 
         # calculate the velocity
-        TravPtV = self.StaDist / (np.asarray(range(self.StartWin - 1, self.EndWin + 1)) * self.SampleT)
+        TravPtV = self.StaDist / (np.asarray(range(self.StartWin, self.EndWin+1)) * self.SampleT)
         GroupVelocityImg = []
         for i in range(self.NumCtrT):
             # GroupVelocityImg.append(np.interp(
             #     self.VPoint, TravPtV[::-1], (EnvelopeImageSignal[i, self.StartWin:self.EndWin+1]/AmpS_T[i])[::-1]))
             GroupVelocityImg.append(interpolate.interp1d
-                                    (TravPtV[::-1], (EnvelopeImageSignal[i, self.StartWin-1:self.EndWin+1]/AmpS_T[i])[::-1], kind='cubic', bounds_error=False,fill_value=0)(self.VPoint))
+                                    (TravPtV[::-1], (EnvelopeImageSignal[i, self.StartWin:self.EndWin+1]/AmpS_T[i])[::-1], kind='cubic', bounds_error=False,fill_value=0)(self.VPoint))
         GroupVelocityImg = np.transpose(np.array(GroupVelocityImg))
         # reverse
         GroupVelocityImg = GroupVelocityImg[::-1]
